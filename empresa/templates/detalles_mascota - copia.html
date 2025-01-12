@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalles de {{ mascota.nombre }}</title>
+    <script>
+        // Solicitar geolocalización al usuario
+        document.addEventListener("DOMContentLoaded", function () {
+            const ubicacionTexto = document.getElementById("ubicacion-text");
+
+        // Verifica si el navegador soporta geolocalización
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                function (position) {
+                    const latitud = position.coords.latitude;
+                    const longitud = position.coords.longitude;
+                    ubicacionTexto.innerText = `Latitud: ${latitud}, Longitud: ${longitud}`;
+                },
+                function () {
+                    ubicacionTexto.innerText = "No se pudo obtener la ubicación.";
+                }
+                );
+            } else {
+                ubicacionTexto.innerText = "La geolocalización no está soportada por este navegador.";
+            }
+                });
+
+        // Manejar errores de geolocalización
+        function manejarErrorGeolocalizacion(error) {
+            let mensaje;
+            switch (error.code) {
+                case error.PERMISSION_DENIED:
+                    mensaje = "El usuario denegó el acceso a la geolocalización.";
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    mensaje = "La información de ubicación no está disponible.";
+                    break;
+                case error.TIMEOUT:
+                    mensaje = "El tiempo de espera para obtener la ubicación se agotó.";
+                    break;
+                default:
+                    mensaje = "Ocurrió un error desconocido.";
+                    break;
+            }
+            alert(mensaje);
+        }
+    </script>
+</head>
+<body>
+    <h1>Detalles de {{ mascota.nombre }}</h1>
+    <p><strong>Tipo:</strong> {{ mascota.tipo }}</p>
+    <p><strong>Raza:</strong> {{ mascota.raza }}</p>
+    <p><strong>Fecha de Nacimiento:</strong> {{ mascota.fecha_nacimiento|date:"d-m-Y" }}</p>
+    <p><strong>Género:</strong> {{ mascota.genero }}</p>
+    <p><strong>Estado de Salud:</strong> {{ mascota.estado_salud }}</p>
+    <p><strong>Descripción:</strong> {{ mascota.descripcion }}</p>
+
+    <h2>Código QR:</h2>
+    <img src="{{ mascota.codigo_qr.url }}" alt="Código QR de {{ mascota.nombre }}" style="max-width: 300px;">
+
+    {% if mascota.foto %}
+        <h2>Foto de la Mascota:</h2>
+        <img src="{{ mascota.foto.url }}" alt="Foto de {{ mascota.nombre }}" style="max-width: 300px;">
+    {% endif %}
+
+    {% load custom_filters %}
+<h2>Código QR:</h2>
+<div id="qr-container">
+    <img src="{{ qr_image_url }}" alt="Código QR de {{ mascota.nombre }}" style="max-width: 300px;">
+</div>
+
+<h2>Ubicación:</h2>
+<div id="ubicacion-container">
+    <p id="ubicacion-text">Solicitando ubicación...</p>
+</div>
+
+</body>
+</html>
