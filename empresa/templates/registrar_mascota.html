@@ -1,25 +1,148 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Registrar Mascota</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        /* Estilo general */
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .form-container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-container h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        textarea {
+            resize: none; /* Desactiva el redimensionamiento manual */
+            height: 100px; /* Altura ajustada */
+            width: 100%; /* Ancho completo */
+        }
+
+        .form-control {
+            margin-bottom: 15px;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #004080;
+        }
+
+        .form-label {
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
 </head>
 <body>
-    <h1>Registrar Mascota</h1>
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <h2>Datos del Propietario</h2>
-        {{ propietario_form.as_p }}
+    <div class="container form-container">
+        <h1>Registrar Mascota</h1>
+        <form method="POST" enctype="multipart/form-data">
+            <!-- Datos del Propietario -->
+            <h3>Datos del Propietario</h3>
+            <div class="mb-3">
+                <label for="propietario-nombre" class="form-label">Nombre:</label>
+                <input type="text" class="form-control" id="propietario-nombre" name="nombre" required>
+            </div>
+            <div class="mb-3">
+                <label for="propietario-email" class="form-label">Email:</label>
+                <input type="email" class="form-control" id="propietario-email" name="email" required>
+            </div>
+            <div class="mb-3">
+                <label for="propietario-telefono" class="form-label">Teléfono:</label>
+                <input type="tel" class="form-control" id="propietario-telefono" name="telefono" required>
+            </div>
+            <div class="mb-3">
+                <label for="propietario-direccion" class="form-label">Dirección:</label>
+                <textarea id="propietario-direccion" class="form-control" name="direccion"></textarea>
+            </div>
 
-        <h2>Datos de la Mascota</h2>
-        {{ mascota_form.as_p }}
+            <!-- Datos de la Mascota -->
+            <h3>Datos de la Mascota</h3>
+            <div class="mb-3">
+                <label for="mascota-nombre" class="form-label">Nombre:</label>
+                <input type="text" class="form-control" id="mascota-nombre" name="mascota_nombre" required>
+            </div>
+            <div class="mb-3">
+                <label for="mascota-tipo" class="form-label">Tipo:</label>
+                <select id="mascota-tipo" class="form-control" name="tipo" required>
+                    <option value="" selected disabled>Seleccionar...</option>
+                    <option value="Gato">Gato</option>
+                    <option value="Perro">Perro</option>
+                    <option value="Conejo">Conejo</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="mascota-raza" class="form-label">Raza:</label>
+                <input type="text" class="form-control" id="mascota-raza" name="raza" required>
+            </div>
+            <div class="mb-3">
+                <label for="mascota-fecha-nacimiento" class="form-label">Fecha de Nacimiento:</label>
+                <input type="date" class="form-control" id="mascota-fecha-nacimiento" name="fecha_nacimiento" required>
+            </div>
+            <div class="mb-3">
+                <label for="mascota-genero" class="form-label">Género:</label>
+                <select id="mascota-genero" class="form-control" name="genero" required>
+                    <option value="" selected disabled>Seleccionar...</option>
+                    <option value="Macho">Macho</option>
+                    <option value="Hembra">Hembra</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="mascota-salud" class="form-label">Estado de Salud:</label>
+                <textarea id="mascota-salud" class="form-control" name="estado_salud"></textarea>
+            </div>
+            <div class="mb-3">
+                <label for="mascota-descripcion" class="form-label">Descripción:</label>
+                <textarea id="mascota-descripcion" class="form-control" name="descripcion"></textarea>
+            </div>
+            <div class="mb-3">
+                <label for="mascota-foto" class="form-label">Foto:</label>
+                <input type="file" class="form-control" id="mascota-foto" name="foto">
+            </div>
+            <div class="mb-3">
+                <label for="mascota-qr" class="form-label">Selecciona un Código QR:</label>
+                <select id="mascota-qr" class="form-control" name="codigo_qr" required>
+                    <option value="" selected disabled>Seleccionar...</option>
+                    <option value="QR-cat_001">QR-cat_001</option>
+                    <option value="QR-cat_002">QR-cat_002</option>
+                    <option value="QR-cat_003">QR-cat_003</option>
+                    <!-- Agrega más opciones según sea necesario -->
+                </select>
+            </div>
 
-        <button type="submit">Registrar</button>
-    </form>
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary">Registrar</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
 
 
 
