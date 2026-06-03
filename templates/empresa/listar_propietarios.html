@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Lista de Propietarios{% endblock %}
+
+{% block content %}
+<header class="bg-primary text-white text-center py-4 mb-4">
+    <div class="container">
+        <h1 class="display-5">Lista de propietarios</h1>
+        <p class="lead">Consulta y gestiona la información de los propietarios.</p>
+    </div>
+</header>
+
+<main class="container mt-4">
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover table-striped align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Nombre</th>
+                    <th>Email</th>
+                    <th>Teléfono</th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for propietario in propietarios %}
+                <tr>
+                    <td>{{ propietario.nombre }}</td>
+                    <td>{{ propietario.email }}</td>
+                    <td>{{ propietario.telefono }}</td>
+                    <td class="text-center">
+                        <form action="{% url 'eliminar_propietario' propietario.id %}" method="post" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center text-muted">No hay propietarios registrados.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</main>
+{% endblock %}
