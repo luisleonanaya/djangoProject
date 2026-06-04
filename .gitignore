@@ -6,3 +6,7 @@ __pycache__/
 .venv/
 db.sqlite3
 staticfiles/
+
+# Archivos locales de desarrollo
+*.log
+.pytest_cache/

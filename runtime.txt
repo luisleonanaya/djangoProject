@@ -1,1 +1,2 @@
-python-3.11
+# Archivo conservado como referencia.
+# El proyecto se ejecuta localmente con entorno virtual en Ubuntu.
