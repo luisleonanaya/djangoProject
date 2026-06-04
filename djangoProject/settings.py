@@ -1,3 +1,5 @@
+# Configuración local del proyecto escolar Django.
+
 from pathlib import Path
 import os
 
