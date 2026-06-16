@@ -1,7 +1,7 @@
 from django import forms
 from django.forms.widgets import DateInput
 
-from .models import EventoQR, Mascota, PlacaQR, Propietario
+from .models import EventoQR, Mascota, PlacaQR, Propietario, TIPO_MASCOTA_CHOICES
 
 
 class EventoQRForm(forms.ModelForm):
@@ -88,3 +88,23 @@ class MascotaForm(forms.ModelForm):
             )
 
         return cleaned_data
+
+
+class GenerarPlacasQRForm(forms.Form):
+    tipo_mascota = forms.ChoiceField(
+        choices=TIPO_MASCOTA_CHOICES,
+        label="Tipo de mascota"
+    )
+
+    cantidad = forms.IntegerField(
+        min_value=1,
+        max_value=300,
+        label="Cantidad de placas a generar",
+        help_text="Puedes generar de 1 a 300 placas por vez."
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        for field in self.fields.values():
+            field.widget.attrs.update({"class": "form-control"})

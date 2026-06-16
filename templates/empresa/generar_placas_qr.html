@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+{% extends "base.html" %}
+
+{% block title %}Generar placas QR{% endblock %}
+
+{% block content %}
+<main class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h1 class="h4 mb-0">Generar placas QR</h1>
+        </div>
+
+        <div class="card-body">
+            <p class="text-muted">
+                Genera placas QR disponibles para Perro, Gato u Otro. Después podrás imprimirlas y asignarlas a una mascota.
+            </p>
+
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    {{ form.tipo_mascota.label_tag }}
+                    {{ form.tipo_mascota }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form.cantidad.label_tag }}
+                    {{ form.cantidad }}
+                    <div class="form-text">{{ form.cantidad.help_text }}</div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Generar placas</button>
+                <a href="{% url 'listar_placas_qr' %}" class="btn btn-secondary">Ver placas</a>
+            </form>
+        </div>
+    </div>
+</main>
+{% endblock %}
+</body>
+</html>

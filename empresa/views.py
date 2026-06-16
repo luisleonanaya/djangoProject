@@ -5,13 +5,14 @@ import qrcode
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
+from io import BytesIO
 
-from .forms import EventoQRForm, MascotaForm, PropietarioForm
+from .forms import EventoQRForm, GenerarPlacasQRForm, MascotaForm, PropietarioForm
 from .models import EventoQR, Mascota, PlacaQR, Propietario
 
 
@@ -261,3 +262,124 @@ def placas_disponibles_por_tipo(request):
         ]
 
     return JsonResponse({"placas": placas})
+
+@login_required
+def generar_placas_qr(request):
+    if request.method == "POST":
+        form = GenerarPlacasQRForm(request.POST)
+
+        if form.is_valid():
+            tipo_mascota = form.cleaned_data["tipo_mascota"]
+            cantidad = form.cleaned_data["cantidad"]
+
+            placas_creadas = []
+
+            for _ in range(cantidad):
+                placa = PlacaQR.objects.create(
+                    tipo_mascota=tipo_mascota,
+                    estado="Disponible",
+                    activo=True,
+                )
+                placas_creadas.append(placa)
+
+            messages.success(
+                request,
+                f"Se generaron {len(placas_creadas)} placas QR para {tipo_mascota}."
+            )
+            return redirect("listar_placas_qr")
+    else:
+        form = GenerarPlacasQRForm()
+
+    return render(
+        request,
+        "empresa/generar_placas_qr.html",
+        {"form": form},
+    )
+
+
+@login_required
+def listar_placas_qr(request):
+    placas = PlacaQR.objects.all().order_by("-fecha_generacion")
+
+    return render(
+        request,
+        "empresa/listar_placas_qr.html",
+        {"placas": placas},
+    )
+
+
+def detalle_placa_qr(request, placa_id):
+    placa = get_object_or_404(PlacaQR, id=placa_id, activo=True)
+
+    try:
+        mascota = placa.mascota
+        return redirect("detalles_mascota", mascota_id=mascota.id)
+    except Mascota.DoesNotExist:
+        return render(
+            request,
+            "empresa/placa_sin_asignar.html",
+            {"placa": placa},
+        )
+
+
+@login_required
+def ver_qr_placa(request, placa_id):
+    placa = get_object_or_404(PlacaQR, id=placa_id)
+
+    url_placa = request.build_absolute_uri(
+        reverse("detalle_placa_qr", args=[placa.id])
+    )
+
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=10,
+        border=4,
+    )
+    qr.add_data(url_placa)
+    qr.make(fit=True)
+
+    imagen = qr.make_image(fill_color="black", back_color="white")
+    buffer = BytesIO()
+    imagen.save(buffer, format="PNG")
+    buffer.seek(0)
+
+    return HttpResponse(buffer.getvalue(), content_type="image/png")
+
+@login_required
+def descargar_qr_placa(request, placa_id):
+    placa = get_object_or_404(PlacaQR, id=placa_id)
+
+    url_placa = request.build_absolute_uri(
+        reverse("detalle_placa_qr", args=[placa.id])
+    )
+
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=10,
+        border=4,
+    )
+    qr.add_data(url_placa)
+    qr.make(fit=True)
+
+    imagen = qr.make_image(fill_color="black", back_color="white")
+    buffer = BytesIO()
+    imagen.save(buffer, format="PNG")
+    buffer.seek(0)
+
+    response = HttpResponse(buffer.getvalue(), content_type="image/png")
+    response["Content-Disposition"] = f'attachment; filename="{placa.codigo}.png"'
+    return response
+
+@login_required
+def imprimir_placas_qr(request):
+    placas = PlacaQR.objects.filter(
+        activo=True
+    ).order_by("tipo_mascota", "codigo")
+
+    return render(
+        request,
+        "empresa/imprimir_placas_qr.html",
+        {"placas": placas},
+    )

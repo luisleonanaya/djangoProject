@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Imprimir placas QR</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        .barra {
+            margin-bottom: 20px;
+        }
+
+        .placas {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+
+        .placa {
+            border: 2px solid #222;
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+            page-break-inside: avoid;
+        }
+
+        .placa img {
+            width: 150px;
+            height: 150px;
+        }
+
+        .codigo {
+            font-weight: bold;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+
+        .tipo {
+            font-size: 13px;
+            color: #555;
+        }
+
+        @media print {
+            .barra {
+                display: none;
+            }
+
+            body {
+                margin: 10px;
+            }
+
+            .placa {
+                border: 1px solid #000;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="barra">
+        <button onclick="window.print()">Imprimir</button>
+    </div>
+
+    <div class="placas">
+        {% for placa in placas %}
+            <div class="placa">
+                <img src="{% url 'ver_qr_placa' placa.id %}" alt="QR {{ placa.codigo }}">
+                <div class="codigo">{{ placa.codigo }}</div>
+                <div class="tipo">{{ placa.tipo_mascota }} | {{ placa.estado }}</div>
+            </div>
+        {% empty %}
+            <p>No hay placas QR disponibles para imprimir.</p>
+        {% endfor %}
+    </div>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+{% extends "base.html" %}
+
+{% block title %}Placa QR sin asignar{% endblock %}
+
+{% block content %}
+<main class="container mt-5">
+    <div class="card shadow text-center">
+        <div class="card-header bg-warning">
+            <h1 class="h4 mb-0">Placa QR sin asignar</h1>
+        </div>
+
+        <div class="card-body">
+            <p>Esta placa QR todavía no ha sido asignada a ninguna mascota.</p>
+
+            <p><strong>Código:</strong> {{ placa.codigo }}</p>
+            <p><strong>Tipo:</strong> {{ placa.tipo_mascota }}</p>
+            <p><strong>Estado:</strong> {{ placa.estado }}</p>
+
+            <img src="{% url 'ver_qr_placa' placa.id %}" alt="QR {{ placa.codigo }}" class="img-fluid my-3" style="max-width: 220px;">
+
+            <p class="text-muted">
+                Cuando esta placa sea asignada a una mascota, el mismo código QR abrirá su perfil.
+            </p>
+        </div>
+    </div>
+</main>
+{% endblock %}
+</body>
+</html>

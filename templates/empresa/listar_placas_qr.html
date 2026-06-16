@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+{% extends "base.html" %}
+
+{% block title %}Listado de placas QR{% endblock %}
+
+{% block content %}
+<main class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Placas QR</h1>
+    <a href="{% url 'imprimir_placas_qr' %}" class="btn btn-secondary" target="_blank">
+        Imprimir placas
+    </a>
+    <a href="{% url 'generar_placas_qr' %}" class="btn btn-success">
+        Generar placas
+    </a>
+
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Código</th>
+                    <th>Tipo</th>
+                    <th>Estado</th>
+                    <th>Activo</th>
+                    <th>Fecha</th>
+                    <th class="text-center">QR</th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for placa in placas %}
+                <tr>
+                    <td>{{ placa.codigo }}</td>
+                    <td>{{ placa.tipo_mascota }}</td>
+                    <td>
+                        {% if placa.estado == "Disponible" %}
+                            <span class="badge bg-success">Disponible</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Asignada</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if placa.activo %}
+                            Sí
+                        {% else %}
+                            No
+                        {% endif %}
+                    </td>
+                    <td>{{ placa.fecha_generacion|date:"d/m/Y H:i" }}</td>
+                    <td class="text-center">
+                        <img src="{% url 'ver_qr_placa' placa.id %}" alt="QR {{ placa.codigo }}" style="width: 90px;">
+                    </td>
+                    <td class="text-center">
+                        <a href="{% url 'detalle_placa_qr' placa.id %}" class="btn btn-sm btn-primary" target="_blank">
+                            Abrir
+                        </a>
+
+                        <a href="{% url 'descargar_qr_placa' placa.id %}" class="btn btn-sm btn-success">
+                            PNG
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted">No hay placas QR generadas.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</main>
+{% endblock %}
+
+</body>
+</html>
