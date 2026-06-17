@@ -10,9 +10,10 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
+from django.db.models import Q
 from io import BytesIO
 
-from .forms import EventoQRForm, GenerarPlacasQRForm, MascotaForm, PropietarioForm
+from .forms import EventoQRForm, GenerarPlacasQRForm, MascotaActualizarForm, MascotaForm, PropietarioForm
 from .models import EventoQR, Mascota, PlacaQR, Propietario
 
 
@@ -59,32 +60,71 @@ def registrar_mascota(request):
         mascota_form = MascotaForm(request.POST, request.FILES)
 
         if propietario_form.is_valid() and mascota_form.is_valid():
-            propietario = propietario_form.save()
-            placa_qr = mascota_form.cleaned_data["placa_qr"]
+            telefono = propietario_form.cleaned_data["telefono"]
+            email = propietario_form.cleaned_data.get("email", "")
 
-            mascota = Mascota.objects.create(
-                propietario=propietario,
-                placa_qr=placa_qr,
-                nombre=mascota_form.cleaned_data["nombre"],
-                tipo=mascota_form.cleaned_data["tipo"],
-                raza=mascota_form.cleaned_data["raza"],
-                fecha_nacimiento=mascota_form.cleaned_data["fecha_nacimiento"],
-                genero=mascota_form.cleaned_data["genero"],
-                color=mascota_form.cleaned_data["color"],
-                estado_salud=mascota_form.cleaned_data["estado_salud"],
-                senas_particulares=mascota_form.cleaned_data["senas_particulares"],
-                descripcion=mascota_form.cleaned_data["descripcion"],
-                foto=mascota_form.cleaned_data["foto"],
-            )
+            propietario_por_telefono = Propietario.objects.filter(
+                telefono=telefono
+            ).first()
 
-            placa_qr.estado = "Asignada"
-            placa_qr.save()
+            propietario_por_email = None
+            if email:
+                propietario_por_email = Propietario.objects.filter(
+                    email__iexact=email
+                ).first()
 
-            messages.success(
-                request,
-                f"Mascota {mascota.nombre} registrada correctamente con la placa {placa_qr.codigo}."
-            )
-            return redirect("listar_mascotas")
+            # Si el teléfono pertenece a un propietario y el correo a otro, hay conflicto.
+            if (
+                propietario_por_telefono
+                and propietario_por_email
+                and propietario_por_telefono.id != propietario_por_email.id
+            ):
+                propietario_form.add_error(
+                    "telefono",
+                    "El teléfono pertenece a otro propietario registrado."
+                )
+                propietario_form.add_error(
+                    "email",
+                    "El correo pertenece a otro propietario registrado."
+                )
+            else:
+                propietario = propietario_por_telefono or propietario_por_email
+
+                if propietario:
+                    propietario.nombre = propietario_form.cleaned_data["nombre"]
+                    propietario.email = email
+                    propietario.telefono = telefono
+                    propietario.direccion = propietario_form.cleaned_data["direccion"]
+                    propietario.save()
+                else:
+                    propietario = propietario_form.save()
+
+                placa_qr = mascota_form.cleaned_data["placa_qr"]
+
+                mascota = Mascota.objects.create(
+                    propietario=propietario,
+                    placa_qr=placa_qr,
+                    nombre=mascota_form.cleaned_data["nombre"],
+                    tipo=mascota_form.cleaned_data["tipo"],
+                    raza=mascota_form.cleaned_data["raza"],
+                    fecha_nacimiento=mascota_form.cleaned_data["fecha_nacimiento"],
+                    genero=mascota_form.cleaned_data["genero"],
+                    color=mascota_form.cleaned_data["color"],
+                    estado_salud=mascota_form.cleaned_data["estado_salud"],
+                    senas_particulares=mascota_form.cleaned_data["senas_particulares"],
+                    descripcion=mascota_form.cleaned_data["descripcion"],
+                    foto=mascota_form.cleaned_data["foto"],
+                )
+
+                placa_qr.estado = "Asignada"
+                placa_qr.save()
+
+                messages.success(
+                    request,
+                    f"Mascota {mascota.nombre} registrada correctamente con la placa {placa_qr.codigo}."
+                )
+                return redirect("detalles_mascota", mascota_id=mascota.id)
+
     else:
         propietario_form = PropietarioForm()
         mascota_form = MascotaForm()
@@ -382,4 +422,58 @@ def imprimir_placas_qr(request):
         request,
         "empresa/imprimir_placas_qr.html",
         {"placas": placas},
+    )
+
+@login_required
+def editar_mascota(request, mascota_id):
+    mascota = get_object_or_404(Mascota, id=mascota_id)
+    propietario = mascota.propietario
+
+    if request.method == "POST":
+        propietario_form = PropietarioForm(request.POST, instance=propietario)
+        mascota_form = MascotaActualizarForm(
+            request.POST,
+            request.FILES,
+            instance=mascota
+        )
+
+        if propietario_form.is_valid() and mascota_form.is_valid():
+            email = propietario_form.cleaned_data.get("email", "")
+            telefono = propietario_form.cleaned_data["telefono"]
+
+            if email and Propietario.objects.filter(
+                email__iexact=email
+            ).exclude(id=propietario.id).exists():
+                propietario_form.add_error(
+                    "email",
+                    "Este correo pertenece a otro propietario."
+                )
+
+            if Propietario.objects.filter(
+                telefono=telefono
+            ).exclude(id=propietario.id).exists():
+                propietario_form.add_error(
+                    "telefono",
+                    "Este teléfono pertenece a otro propietario."
+                )
+
+            if not propietario_form.errors:
+                propietario_form.save()
+                mascota_form.save()
+
+                messages.success(request, "Datos actualizados correctamente.")
+                return redirect("detalles_mascota", mascota_id=mascota.id)
+
+    else:
+        propietario_form = PropietarioForm(instance=propietario)
+        mascota_form = MascotaActualizarForm(instance=mascota)
+
+    return render(
+        request,
+        "empresa/editar_mascota.html",
+        {
+            "propietario_form": propietario_form,
+            "mascota_form": mascota_form,
+            "mascota": mascota,
+        },
     )

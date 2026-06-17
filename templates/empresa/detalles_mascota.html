@@ -85,19 +85,28 @@
             <p class="text-danger">No se ha registrado un propietario.</p>
             {% endif %}
 
+            {% if user.is_authenticated %}
+            <div class="text-end mb-3">
+                <a href="{% url 'editar_mascota' mascota.id %}" class="btn btn-warning">
+                Modificar datos / subir foto
+            </a>
+            </div>
+            {% endif %}
+
             <h2 class="h5 mb-3">Código QR</h2>
             <div class="text-center mb-4">
                 <img src="{{ qr_url }}" alt="Código QR de {{ mascota.nombre }}" class="img-fluid" style="max-width: 200px;">
             </div>
+        
+            <h3>Foto de la mascota</h3>
 
-            <h2 class="h5 mb-3">Foto de la mascota</h2>
-            <div class="text-center mb-4">
-                {% if mascota.foto %}
+            {% if mascota.foto %}
+                <div class="text-center">
                     <img src="{{ mascota.foto.url }}" alt="Foto de {{ mascota.nombre }}" class="img-fluid rounded shadow" style="max-width: 300px;">
-                {% else %}
-                    <p class="text-muted">No hay foto disponible.</p>
-                {% endif %}
-            </div>
+                </div>
+            {% else %}
+                <p class="text-center text-muted">No hay foto disponible.</p>
+            {% endif %}
 
             <h2 class="h5 mb-3">Ubicación del usuario</h2>
             {% if latitud and longitud %}

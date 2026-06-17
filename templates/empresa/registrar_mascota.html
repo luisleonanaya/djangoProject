@@ -1,104 +1,171 @@
 {% extends "base.html" %}
 
-{% block title %}Registrar Mascota{% endblock %}
-
-{% block extra_head %}
-<style>
-    .form-container {
-        max-width: 850px;
-        margin: 30px auto;
-        padding: 24px;
-        background: #ffffff;
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-    }
-
-    textarea {
-        resize: none;
-        min-height: 100px;
-    }
-</style>
-{% endblock %}
+{% block title %}Registrar mascota{% endblock %}
 
 {% block content %}
-<div class="container form-container">
-    <h1 class="text-center mb-4">Registrar mascota</h1>
-
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-
-        <h3 class="h5 mb-3">Datos del propietario</h3>
-        <div class="mb-3">
-            {{ propietario_form.nombre.label_tag }}
-            {{ propietario_form.nombre }}
-        </div>
-        <div class="mb-3">
-            {{ propietario_form.email.label_tag }}
-            {{ propietario_form.email }}
-        </div>
-        <div class="mb-3">
-            {{ propietario_form.telefono.label_tag }}
-            {{ propietario_form.telefono }}
-        </div>
-        <div class="mb-3">
-            {{ propietario_form.direccion.label_tag }}
-            {{ propietario_form.direccion }}
+<main class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h1 class="h4 mb-0">Registrar mascota</h1>
         </div>
 
-        <hr>
+        <div class="card-body">
 
-        <h3 class="h5 mb-3">Datos de la mascota</h3>
-        <div class="mb-3">
-            {{ mascota_form.nombre.label_tag }}
-            {{ mascota_form.nombre }}
-        </div>
-        <div class="mb-3">
-            {{ mascota_form.tipo.label_tag }}
-            {{ mascota_form.tipo }}
-        </div>
-        <div class="mb-3">
-            {{ mascota_form.raza.label_tag }}
-            {{ mascota_form.raza }}
-        </div>
-        <div class="mb-3">
-            {{ mascota_form.fecha_nacimiento.label_tag }}
-            {{ mascota_form.fecha_nacimiento }}
-        </div>
-        <div class="mb-3">
-            {{ mascota_form.genero.label_tag }}
-            {{ mascota_form.genero }}
-        </div>
-        <div class="mb-3">
-            {{ mascota_form.estado_salud.label_tag }}
-            {{ mascota_form.estado_salud }}
-        </div>
-        <div class="mb-3">
-            {{ mascota_form.descripcion.label_tag }}
-            {{ mascota_form.descripcion }}
-        </div>
-        <div class="mb-3">
-            {{ mascota_form.foto.label_tag }}
-            {{ mascota_form.foto }}
-        </div>
-
-        <div class="mb-3">
-            {{ mascota_form.placa_qr.label_tag }}
-            {{ mascota_form.placa_qr }}
-            {% if mascota_form.placa_qr.errors %}
-            <div class="text-danger">
-                {{ mascota_form.placa_qr.errors }}
-            </div>
+            {% if propietario_form.errors or mascota_form.errors %}
+                <div class="alert alert-danger">
+                    <strong>Hay errores en el formulario.</strong>
+                    Revisa los campos marcados antes de continuar.
+                </div>
             {% endif %}
-        </div>
 
-        <div class="text-center">
-            <button type="submit" class="btn btn-primary">Registrar</button>
-            <a href="{% url 'listar_mascotas' %}" class="btn btn-secondary">Cancelar</a>
-        </div>
-    </form>
-</div>
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
 
-    {% block extra_js %}
+                <h3 class="h5 mb-3">Datos del propietario</h3>
+
+                <div class="mb-3">
+                    {{ propietario_form.nombre.label_tag }}
+                    {{ propietario_form.nombre }}
+                    {% for error in propietario_form.nombre.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="mb-3">
+                    {{ propietario_form.email.label_tag }}
+                    {{ propietario_form.email }}
+                    {% for error in propietario_form.email.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="mb-3">
+                    {{ propietario_form.telefono.label_tag }}
+                    {{ propietario_form.telefono }}
+                    {% for error in propietario_form.telefono.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="mb-3">
+                    {{ propietario_form.direccion.label_tag }}
+                    {{ propietario_form.direccion }}
+                    {% for error in propietario_form.direccion.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <hr>
+
+                <h3 class="h5 mb-3">Datos de la mascota</h3>
+
+                {% if mascota_form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {% for error in mascota_form.non_field_errors %}
+                            <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <div class="mb-3">
+                    {{ mascota_form.nombre.label_tag }}
+                    {{ mascota_form.nombre }}
+                    {% for error in mascota_form.nombre.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="mb-3">
+                    {{ mascota_form.tipo.label_tag }}
+                    {{ mascota_form.tipo }}
+                    {% for error in mascota_form.tipo.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="mb-3">
+                    {{ mascota_form.raza.label_tag }}
+                    {{ mascota_form.raza }}
+                    {% for error in mascota_form.raza.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="mb-3">
+                    {{ mascota_form.fecha_nacimiento.label_tag }}
+                    {{ mascota_form.fecha_nacimiento }}
+                    {% for error in mascota_form.fecha_nacimiento.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="mb-3">
+                    {{ mascota_form.genero.label_tag }}
+                    {{ mascota_form.genero }}
+                    {% for error in mascota_form.genero.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="mb-3">
+                    {{ mascota_form.color.label_tag }}
+                    {{ mascota_form.color }}
+                    {% for error in mascota_form.color.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="mb-3">
+                    {{ mascota_form.estado_salud.label_tag }}
+                    {{ mascota_form.estado_salud }}
+                    {% for error in mascota_form.estado_salud.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="mb-3">
+                    {{ mascota_form.senas_particulares.label_tag }}
+                    {{ mascota_form.senas_particulares }}
+                    {% for error in mascota_form.senas_particulares.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="mb-3">
+                    {{ mascota_form.descripcion.label_tag }}
+                    {{ mascota_form.descripcion }}
+                    {% for error in mascota_form.descripcion.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="mb-3">
+                    {{ mascota_form.foto.label_tag }}
+                    {{ mascota_form.foto }}
+                    {% for error in mascota_form.foto.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="mb-3">
+                    {{ mascota_form.placa_qr.label_tag }}
+                    {{ mascota_form.placa_qr }}
+                    {% for error in mascota_form.placa_qr.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary">Registrar</button>
+                    <a href="{% url 'listar_mascotas' %}" class="btn btn-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+{% endblock %}
+
+{% block extra_js %}
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const tipoSelect = document.getElementById("id_tipo");
@@ -141,7 +208,7 @@
                         data.placas.forEach(placa => {
                             const option = document.createElement("option");
                             option.value = placa.id;
-                            option.textContent = `${placa.codigo} - ${placa.tipo_mascota}`;
+                            option.textContent = `${placa.codigo} - ${placa.tipo_mascota} - Disponible`;
                             placaSelect.appendChild(option);
                         });
                     })
@@ -152,5 +219,4 @@
         }
     });
 </script>
-{% endblock %}
 {% endblock %}

@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Editar mascota{% endblock %}
+
+{% block content %}
+<main class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header bg-warning">
+            <h1 class="h4 mb-0">Modificar datos de {{ mascota.nombre }}</h1>
+        </div>
+
+        <div class="card-body">
+            {% if propietario_form.errors or mascota_form.errors %}
+                <div class="alert alert-danger">
+                    <strong>Hay errores en el formulario.</strong>
+                    Revisa los campos marcados antes de continuar.
+                </div>
+            {% endif %}
+
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <h3 class="h5 mb-3">Datos del propietario</h3>
+
+                {% for field in propietario_form %}
+                    <div class="mb-3">
+                        {{ field.label_tag }}
+                        {{ field }}
+                        {% for error in field.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+
+                <hr>
+
+                <h3 class="h5 mb-3">Datos de la mascota</h3>
+
+                {% for field in mascota_form %}
+                    <div class="mb-3">
+                        {{ field.label_tag }}
+                        {{ field }}
+                        {% for error in field.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+
+                {% if mascota.foto %}
+                    <div class="mb-3 text-center">
+                        <p><strong>Foto actual:</strong></p>
+                        <img src="{{ mascota.foto.url }}" alt="Foto de {{ mascota.nombre }}" class="img-fluid rounded shadow" style="max-width: 250px;">
+                    </div>
+                {% endif %}
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-warning">Guardar cambios</button>
+                    <a href="{% url 'detalles_mascota' mascota.id %}" class="btn btn-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+{% endblock %}
