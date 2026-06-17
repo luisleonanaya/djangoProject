@@ -5,9 +5,11 @@ from .models import EventoQR, Mascota, PlacaQR, Propietario, ReporteMascotaEncon
 
 @admin.register(Propietario)
 class PropietarioAdmin(admin.ModelAdmin):
-    list_display = ("id", "nombre", "email", "telefono", "estado", "fecha_registro")
+    #list_display = ("id", "nombre", "email", "telefono", "estado", "fecha_registro")
+    list_display = ("nombre", "email", "telefono", "mostrar_contacto_publico", "estado")
     search_fields = ("nombre", "email", "telefono")
-    list_filter = ("estado",)
+    #list_filter = ("estado",)
+    list_filter = ("mostrar_contacto_publico", "estado")
 
 
 @admin.register(PlacaQR)

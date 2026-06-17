@@ -14,7 +14,7 @@ class EventoQRForm(forms.ModelForm):
 class PropietarioForm(forms.ModelForm):
     class Meta:
         model = Propietario
-        fields = ["nombre", "email", "telefono", "direccion"]
+        fields = ["nombre", "email", "telefono", "direccion", "mostrar_contacto_publico"]
         labels = {
             "nombre": "Nombre del propietario",
             "email": "Correo electrónico",
@@ -25,8 +25,11 @@ class PropietarioForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        for field in self.fields.values():
-            field.widget.attrs.update({"class": "form-control"})
+        for field_name, field in self.fields.items():
+            if field_name == "mostrar_contacto_publico":
+                field.widget.attrs.update({"class": "form-check-input"})
+            else:
+                field.widget.attrs.update({"class": "form-control"})
 
     def clean_nombre(self):
         nombre = (self.cleaned_data.get("nombre") or "").strip()

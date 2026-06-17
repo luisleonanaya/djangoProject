@@ -12,6 +12,7 @@
         display: none;
     }
 </style>
+
 <script>
     function obtenerUbicacion() {
         const spinner = document.getElementById("loading-spinner");
@@ -26,10 +27,12 @@
                     const latitud = position.coords.latitude;
                     const longitud = position.coords.longitude;
                     const currentUrl = window.location.href.split("?")[0];
+
                     window.location.href = `${currentUrl}?lat=${latitud}&lon=${longitud}`;
                 },
                 function (error) {
                     spinner.style.display = "none";
+
                     let mensajeError = "Ocurrió un error desconocido.";
 
                     if (error.code === error.PERMISSION_DENIED) {
@@ -45,7 +48,7 @@
                 {
                     enableHighAccuracy: true,
                     timeout: 10000,
-                    maximumAge: 0,
+                    maximumAge: 0
                 }
             );
         } else {
@@ -60,70 +63,180 @@
 <div class="container mt-4">
     <div class="card shadow">
         <div class="card-header text-center text-white">
-            <h1 class="h3 mb-0">Detalles de {{ mascota.nombre|default:"mascota" }}</h1>
+            <h1 class="h3 mb-0">
+                Detalles de {{ mascota.nombre|default:"mascota" }}
+            </h1>
         </div>
 
         <div class="card-body">
-            <h2 class="h5">Información de la mascota</h2>
-            <ul class="list-group mb-4">
-                <li class="list-group-item"><strong>Tipo:</strong> {{ mascota.tipo|default:"-" }}</li>
-                <li class="list-group-item"><strong>Raza:</strong> {{ mascota.raza|default:"-" }}</li>
-                <li class="list-group-item"><strong>Fecha de nacimiento:</strong> {{ mascota.fecha_nacimiento|default:"-" }}</li>
-                <li class="list-group-item"><strong>Género:</strong> {{ mascota.genero|default:"-" }}</li>
-                <li class="list-group-item"><strong>Estado de salud:</strong> {{ mascota.estado_salud|default:"-" }}</li>
-                <li class="list-group-item"><strong>Descripción:</strong> {{ mascota.descripcion|default:"-" }}</li>
-            </ul>
-
-            <h2 class="h5">Información del propietario</h2>
-            {% if mascota.propietario %}
-            <ul class="list-group mb-4">
-                <li class="list-group-item"><strong>Nombre:</strong> {{ mascota.propietario.nombre }}</li>
-                <li class="list-group-item"><strong>Correo:</strong> {{ mascota.propietario.email }}</li>
-                <li class="list-group-item"><strong>Teléfono:</strong> {{ mascota.propietario.telefono }}</li>
-            </ul>
-            {% else %}
-            <p class="text-danger">No se ha registrado un propietario.</p>
-            {% endif %}
 
             {% if user.is_authenticated %}
-            <div class="text-end mb-3">
-                <a href="{% url 'editar_mascota' mascota.id %}" class="btn btn-warning">
-                Modificar datos / subir foto
-            </a>
-            </div>
+                <div class="text-end mb-3">
+                    <a href="{% url 'editar_mascota' mascota.id %}" class="btn btn-warning">
+                        Modificar datos / subir foto
+                    </a>
+                </div>
+            {% endif %}
+
+            <h2 class="h5">Información de la mascota</h2>
+
+            <ul class="list-group mb-4">
+                <li class="list-group-item">
+                    <strong>Tipo:</strong> {{ mascota.tipo|default:"-" }}
+                </li>
+
+                <li class="list-group-item">
+                    <strong>Raza o especie:</strong> {{ mascota.raza|default:"-" }}
+                </li>
+
+                <li class="list-group-item">
+                    <strong>Fecha de nacimiento:</strong> {{ mascota.fecha_nacimiento|default:"-" }}
+                </li>
+
+                <li class="list-group-item">
+                    <strong>Género:</strong> {{ mascota.genero|default:"-" }}
+                </li>
+
+                <li class="list-group-item">
+                    <strong>Color:</strong> {{ mascota.color|default:"-" }}
+                </li>
+
+                <li class="list-group-item">
+                    <strong>Estado de salud:</strong> {{ mascota.estado_salud|default:"-" }}
+                </li>
+
+                <li class="list-group-item">
+                    <strong>Señas particulares:</strong> {{ mascota.senas_particulares|default:"-" }}
+                </li>
+
+                <li class="list-group-item">
+                    <strong>Descripción:</strong> {{ mascota.descripcion|default:"-" }}
+                </li>
+
+                {% if mascota.placa_qr %}
+                    <li class="list-group-item">
+                        <strong>Placa QR:</strong> {{ mascota.placa_qr.codigo }}
+                    </li>
+                {% endif %}
+            </ul>
+
+            <h2 class="h5">Información de contacto</h2>
+
+            {% if mascota.propietario %}
+
+                {% if mascota.propietario.mostrar_contacto_publico %}
+                    <div class="list-group mb-4">
+                        <div class="list-group-item">
+                            <strong>Nombre:</strong> {{ mascota.propietario.nombre }}
+                        </div>
+
+                        <div class="list-group-item">
+                            <strong>Correo:</strong> {{ mascota.propietario.email }}
+                        </div>
+
+                        <div class="list-group-item">
+                            <strong>Teléfono:</strong> {{ mascota.propietario.telefono }}
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info mb-4">
+                        <h5 class="mb-2">Datos protegidos por privacidad</h5>
+
+                        <p>
+                            El propietario decidió no mostrar públicamente sus datos personales.
+                            Para reportar esta mascota, comunícate con la asociación civil encargada.
+                        </p>
+
+                        <hr>
+
+                        <p class="mb-1">
+                            <strong>Asociación Civil:</strong> Protección y Rescate Animal
+                        </p>
+
+                        <p class="mb-1">
+                            <strong>Teléfono:</strong> 55 0000 0000
+                        </p>
+
+                        <p class="mb-1">
+                            <strong>Correo:</strong> contacto@rescateanimal.org
+                        </p>
+                    </div>
+                {% endif %}
+
+            {% else %}
+                <p class="text-danger">
+                    No se ha registrado un propietario.
+                </p>
             {% endif %}
 
             <h2 class="h5 mb-3">Código QR</h2>
+
             <div class="text-center mb-4">
-                <img src="{{ qr_url }}" alt="Código QR de {{ mascota.nombre }}" class="img-fluid" style="max-width: 200px;">
+                {% if qr_url %}
+                    <img src="{{ qr_url }}" alt="Código QR de {{ mascota.nombre }}" class="img-fluid" style="max-width: 200px;">
+                {% elif mascota.placa_qr %}
+                    <img src="{% url 'ver_qr_placa' mascota.placa_qr.id %}" alt="Código QR de {{ mascota.nombre }}" class="img-fluid" style="max-width: 200px;">
+                {% else %}
+                    <p class="text-muted">No hay código QR asignado.</p>
+                {% endif %}
             </div>
-        
-            <h3>Foto de la mascota</h3>
+
+            <h2 class="h5 mb-3">Foto de la mascota</h2>
 
             {% if mascota.foto %}
-                <div class="text-center">
+                <div class="text-center mb-4">
                     <img src="{{ mascota.foto.url }}" alt="Foto de {{ mascota.nombre }}" class="img-fluid rounded shadow" style="max-width: 300px;">
                 </div>
             {% else %}
-                <p class="text-center text-muted">No hay foto disponible.</p>
+                <p class="text-center text-muted">
+                    No hay foto disponible.
+                </p>
             {% endif %}
 
             <h2 class="h5 mb-3">Ubicación del usuario</h2>
+
             {% if latitud and longitud %}
-                <p><strong>Latitud:</strong> {{ latitud }}</p>
-                <p><strong>Longitud:</strong> {{ longitud }}</p>
+                <div class="alert alert-success">
+                    <p class="mb-1">
+                        <strong>Latitud:</strong> {{ latitud }}
+                    </p>
+
+                    <p class="mb-1">
+                        <strong>Longitud:</strong> {{ longitud }}
+                    </p>
+
+                    <a
+                        href="https://www.google.com/maps?q={{ latitud }},{{ longitud }}"
+                        target="_blank"
+                        class="btn btn-sm btn-primary mt-2"
+                    >
+                        Ver ubicación en Google Maps
+                    </a>
+                </div>
             {% else %}
-                <p class="text-muted">No se proporcionó la ubicación del dispositivo.</p>
+                <p class="text-muted">
+                    No se proporcionó la ubicación del dispositivo.
+                </p>
+
                 <button id="btn-actualizar" class="btn btn-primary" onclick="obtenerUbicacion()">
                     Actualizar ubicación
                     <span id="loading-spinner" class="spinner-border spinner-border-sm" role="status"></span>
                 </button>
+
                 <p id="ubicacion-error" class="text-danger mt-2"></p>
             {% endif %}
         </div>
 
         <div class="card-footer text-center">
-            <a href="{% url 'listar_mascotas' %}" class="btn btn-secondary">Regresar a la lista</a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'listar_mascotas' %}" class="btn btn-secondary">
+                    Regresar a la lista
+                </a>
+            {% else %}
+                <a href="{% url 'inicio' %}" class="btn btn-secondary">
+                    Regresar al inicio
+                </a>
+            {% endif %}
         </div>
     </div>
 </div>

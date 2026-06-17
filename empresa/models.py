@@ -19,19 +19,30 @@ ESTADO_PLACA_CHOICES = [
     ("Asignada", "Asignada"),
 ]
 
-
 class Propietario(models.Model):
-    id = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=255)
     email = models.EmailField(unique=True)
     telefono = models.CharField(max_length=20)
     direccion = models.TextField(blank=True, null=True)
+
+    mostrar_contacto_publico = models.BooleanField(
+        default=True,
+        verbose_name="Mostrar datos de contacto al público"
+    )
+
     fecha_registro = models.DateTimeField(default=now)
-    estado = models.CharField(max_length=20, default="Activo")
+
+    estado = models.CharField(
+        max_length=20,
+        choices=[
+            ("Activo", "Activo"),
+            ("Inactivo", "Inactivo"),
+        ],
+        default="Activo"
+    )
 
     def __str__(self):
         return self.nombre
-
 
 class PlacaQR(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

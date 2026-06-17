@@ -47,12 +47,20 @@
                     {% endfor %}
                 </div>
 
-                <div class="mb-3">
-                    {{ propietario_form.direccion.label_tag }}
-                    {{ propietario_form.direccion }}
-                    {% for error in propietario_form.direccion.errors %}
-                        <div class="text-danger small">{{ error }}</div>
-                    {% endfor %}
+                <div class="mb-3 form-check">
+                    {{ propietario_form.mostrar_contacto_publico }}
+                    <label class="form-check-label" for="{{ propietario_form.mostrar_contacto_publico.id_for_label }}">
+                    {{ propietario_form.mostrar_contacto_publico.label }}
+                    </label>
+
+                <div class="form-text">
+                    Si desmarcas esta opción, tus datos personales no aparecerán públicamente.
+                    En su lugar se mostrarán los datos de una asociación civil.
+                </div>
+
+                    {% for error in propietario_form.mostrar_contacto_publico.errors %}
+                <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
                 </div>
 
                 <hr>
