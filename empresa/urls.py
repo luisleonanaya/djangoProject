@@ -44,4 +44,7 @@ urlpatterns = [
     path("imprimir-placas/", views.imprimir_placas_qr, name="imprimir_placas_qr"),
     path("mascota/<uuid:mascota_id>/editar/", views.editar_mascota, name="editar_mascota"),
 
+    path(
+        "propietario/<str:propietario_id>/editar/",views.editar_propietario,name="editar_propietario"),
+
 ]

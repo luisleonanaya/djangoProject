@@ -477,3 +477,46 @@ def editar_mascota(request, mascota_id):
             "mascota": mascota,
         },
     )
+
+@login_required
+def editar_propietario(request, propietario_id):
+    propietario = get_object_or_404(Propietario, id=propietario_id)
+
+    if request.method == "POST":
+        form = PropietarioForm(request.POST, instance=propietario)
+
+        if form.is_valid():
+            email = form.cleaned_data.get("email", "")
+            telefono = form.cleaned_data["telefono"]
+
+            if email and Propietario.objects.filter(
+                email__iexact=email
+            ).exclude(id=propietario.id).exists():
+                form.add_error(
+                    "email",
+                    "Este correo pertenece a otro propietario."
+                )
+
+            if Propietario.objects.filter(
+                telefono=telefono
+            ).exclude(id=propietario.id).exists():
+                form.add_error(
+                    "telefono",
+                    "Este teléfono pertenece a otro propietario."
+                )
+
+            if not form.errors:
+                form.save()
+                messages.success(request, "Propietario actualizado correctamente.")
+                return redirect("listar_propietarios")
+    else:
+        form = PropietarioForm(instance=propietario)
+
+    return render(
+        request,
+        "empresa/editar_propietario.html",
+        {
+            "form": form,
+            "propietario": propietario,
+        },
+    )

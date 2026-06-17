@@ -27,6 +27,10 @@
                     <td>{{ propietario.nombre }}</td>
                     <td>{{ propietario.email }}</td>
                     <td>{{ propietario.telefono }}</td>
+                    <td><a href="{% url 'editar_propietario' propietario.id %}" class="btn btn-sm btn-warning">
+                        Editar
+                    </a>
+                    </td>
                     <td class="text-center">
                         <form action="{% url 'eliminar_propietario' propietario.id %}" method="post" class="d-inline">
                             {% csrf_token %}
