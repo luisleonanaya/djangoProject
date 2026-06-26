@@ -21,6 +21,8 @@
                     <th>Fecha</th>
                     <th>Ubicación</th>
                     <th>Estado</th>
+                    <th>Resultado</th>
+                    <th>Acciones</th>
                 </tr>
             </thead>
 
@@ -76,10 +78,18 @@
                                 <span class="badge bg-secondary">{{ reporte.estado_reporte }}</span>
                             {% endif %}
                         </td>
+
+                        <td>{{ reporte.resultado_reporte|default:"Sin definir" }}</td>
+
+                        <td>
+                            <a href="{% url 'detalle_reporte_mascota' reporte.id %}" class="btn btn-sm btn-dark">
+                                Detalle
+                            </a>
+                        </td>
                     </tr>
                 {% empty %}
                     <tr>
-                        <td colspan="9" class="text-center text-muted">
+                        <td colspan="11" class="text-center text-muted">
                             No hay reportes registrados.
                         </td>
                     </tr>

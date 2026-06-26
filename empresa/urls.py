@@ -51,4 +51,6 @@ urlpatterns = [
 
     path("reportes-mascotas/",views.listar_reportes_mascota,name="listar_reportes_mascota"),
 
+    path("reportes-mascotas/<int:reporte_id>/",views.detalle_reporte_mascota,name="detalle_reporte_mascota"),
+
 ]

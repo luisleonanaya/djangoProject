@@ -127,10 +127,17 @@ class ReporteMascotaEncontrada(models.Model):
         ("Resuelto", "Resuelto"),
     ]
 
+    RESULTADO_REPORTE_CHOICES = [
+        ("Sin definir", "Sin definir"),
+        ("Mascota encontrada", "Mascota encontrada"),
+        ("Falsa alarma", "Falsa alarma"),
+        ("Reporte duplicado", "Reporte duplicado"),
+        ("No localizada", "No localizada"),
+        ("Otro", "Otro"),
+    ]
+
     id = models.AutoField(primary_key=True)
 
-    # Se conserva por compatibilidad con la estructura anterior.
-    # Puede quedar vacío porque ahora el reporte se hará directamente desde la mascota.
     evento = models.ForeignKey(
         "EventoQR",
         on_delete=models.CASCADE,
@@ -203,6 +210,23 @@ class ReporteMascotaEncontrada(models.Model):
         max_length=30,
         choices=ESTADO_REPORTE_CHOICES,
         default="Pendiente"
+    )
+
+    resultado_reporte = models.CharField(
+        max_length=40,
+        choices=RESULTADO_REPORTE_CHOICES,
+        default="Sin definir"
+    )
+
+    observaciones_cierre = models.TextField(
+        blank=True,
+        null=True,
+        help_text="Notas del administrador sobre lo ocurrido con el reporte."
+    )
+
+    fecha_cierre = models.DateTimeField(
+        blank=True,
+        null=True
     )
 
     def tiene_ubicacion(self):

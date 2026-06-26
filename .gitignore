@@ -10,3 +10,7 @@ staticfiles/
 # Archivos locales de desarrollo
 *.log
 .pytest_cache/
+
+# Archivos subidos o generados localmente
+media/mascotas/
+media/qr_codes/

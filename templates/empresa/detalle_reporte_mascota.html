@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block title %}Detalle del reporte{% endblock %}
+
+{% block content %}
+<main class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header bg-dark text-white">
+            <h1 class="h4 mb-0">Detalle del reporte de mascota encontrada</h1>
+        </div>
+
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-7">
+                    <h2 class="h5">Información del reporte</h2>
+
+                    <ul class="list-group mb-4">
+                        <li class="list-group-item">
+                            <strong>ID del reporte:</strong> {{ reporte.id }}
+                        </li>
+
+                        <li class="list-group-item">
+                            <strong>Fecha del reporte:</strong> {{ reporte.fecha_reporte|date:"d/m/Y H:i" }}
+                        </li>
+
+                        <li class="list-group-item">
+                            <strong>Estado actual:</strong> {{ reporte.estado_reporte }}
+                        </li>
+
+                        <li class="list-group-item">
+                            <strong>Resultado:</strong> {{ reporte.resultado_reporte|default:"Sin definir" }}
+                        </li>
+
+                        <li class="list-group-item">
+                            <strong>Reportante:</strong> {{ reporte.nombre_reportante|default:"-" }}
+                        </li>
+
+                        <li class="list-group-item">
+                            <strong>Teléfono del reportante:</strong> {{ reporte.telefono_reportante|default:"-" }}
+                        </li>
+
+                        <li class="list-group-item">
+                            <strong>Mensaje:</strong><br>
+                            {{ reporte.mensaje|default:"-" }}
+                        </li>
+
+                        <li class="list-group-item">
+                            <strong>Referencia del lugar:</strong><br>
+                            {{ reporte.referencia_ubicacion|default:"-" }}
+                        </li>
+
+                        {% if reporte.latitud and reporte.longitud %}
+                            <li class="list-group-item">
+                                <strong>Ubicación aproximada:</strong><br>
+                                Latitud: {{ reporte.latitud }}<br>
+                                Longitud: {{ reporte.longitud }}<br>
+
+                                <a
+                                    href="https://www.google.com/maps?q={{ reporte.latitud }},{{ reporte.longitud }}"
+                                    target="_blank"
+                                    class="btn btn-sm btn-primary mt-2"
+                                >
+                                    Abrir en Google Maps
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="list-group-item">
+                                <strong>Ubicación:</strong> Sin ubicación compartida.
+                            </li>
+                        {% endif %}
+                    </ul>
+
+                    <h2 class="h5">Información de la mascota</h2>
+
+                    {% if reporte.mascota %}
+                        <ul class="list-group mb-4">
+                            <li class="list-group-item">
+                                <strong>Mascota:</strong>
+                                <a href="{% url 'detalles_mascota' reporte.mascota.id %}">
+                                    {{ reporte.mascota.nombre }}
+                                </a>
+                            </li>
+
+                            <li class="list-group-item">
+                                <strong>Tipo:</strong> {{ reporte.mascota.tipo }}
+                            </li>
+
+                            <li class="list-group-item">
+                                <strong>Raza o especie:</strong> {{ reporte.mascota.raza }}
+                            </li>
+
+                            {% if reporte.mascota.propietario %}
+                                <li class="list-group-item">
+                                    <strong>Propietario:</strong> {{ reporte.mascota.propietario.nombre }}
+                                </li>
+
+                                <li class="list-group-item">
+                                    <strong>Teléfono del propietario:</strong> {{ reporte.mascota.propietario.telefono }}
+                                </li>
+                            {% endif %}
+                        </ul>
+                    {% else %}
+                        <p class="text-muted">Este reporte no tiene mascota asociada.</p>
+                    {% endif %}
+                </div>
+
+                <div class="col-md-5">
+                    <h2 class="h5">Gestión del reporte</h2>
+
+                    {% if reporte.fecha_cierre %}
+                        <div class="alert alert-success">
+                            <strong>Fecha de cierre:</strong>
+                            {{ reporte.fecha_cierre|date:"d/m/Y H:i" }}
+                        </div>
+                    {% endif %}
+
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            {{ form.estado_reporte.label_tag }}
+                            {{ form.estado_reporte }}
+                            {% for error in form.estado_reporte.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.resultado_reporte.label_tag }}
+                            {{ form.resultado_reporte }}
+                            {% for error in form.resultado_reporte.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.observaciones_cierre.label_tag }}
+                            {{ form.observaciones_cierre }}
+                            {% for error in form.observaciones_cierre.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                            <div class="form-text">
+                                Ejemplo: “Se contactó al propietario y la mascota fue recuperada”.
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-success">
+                            Guardar seguimiento
+                        </button>
+
+                        <a href="{% url 'listar_reportes_mascota' %}" class="btn btn-secondary">
+                            Volver
+                        </a>
+                    </form>
+
+                    {% if reporte.observaciones_cierre %}
+                        <hr>
+
+                        <h3 class="h6">Observaciones actuales</h3>
+                        <p>{{ reporte.observaciones_cierre }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}

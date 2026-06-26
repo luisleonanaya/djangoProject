@@ -12,8 +12,9 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.db.models import Q
 from io import BytesIO
+from django.utils import timezone
 
-from .forms import EventoQRForm, GenerarPlacasQRForm, MascotaActualizarForm, MascotaForm, PropietarioForm, ReporteMascotaEncontradaForm
+from .forms import EventoQRForm, GenerarPlacasQRForm, MascotaActualizarForm, MascotaForm, PropietarioForm, ReporteMascotaEncontradaForm, ActualizarReporteMascotaForm
 from .models import EventoQR, Mascota, PlacaQR, Propietario, ReporteMascotaEncontrada
 
 def inicio(request):
@@ -582,5 +583,46 @@ def listar_reportes_mascota(request):
         "empresa/listar_reportes_mascota.html",
         {
             "reportes": reportes,
+        }
+    )
+
+@login_required
+def detalle_reporte_mascota(request, reporte_id):
+    reporte = get_object_or_404(
+        ReporteMascotaEncontrada.objects.select_related(
+            "mascota",
+            "mascota__propietario",
+            "administrador"
+        ),
+        id=reporte_id
+    )
+
+    if request.method == "POST":
+        form = ActualizarReporteMascotaForm(request.POST, instance=reporte)
+
+        if form.is_valid():
+            reporte_actualizado = form.save(commit=False)
+            reporte_actualizado.administrador = request.user
+
+            if reporte_actualizado.estado_reporte == "Resuelto":
+                if not reporte_actualizado.fecha_cierre:
+                    reporte_actualizado.fecha_cierre = timezone.now()
+            else:
+                reporte_actualizado.fecha_cierre = None
+
+            reporte_actualizado.save()
+
+            messages.success(request, "Reporte actualizado correctamente.")
+            return redirect("detalle_reporte_mascota", reporte_id=reporte.id)
+
+    else:
+        form = ActualizarReporteMascotaForm(instance=reporte)
+
+    return render(
+        request,
+        "empresa/detalle_reporte_mascota.html",
+        {
+            "reporte": reporte,
+            "form": form,
         }
     )

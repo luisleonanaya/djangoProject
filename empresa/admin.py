@@ -46,8 +46,18 @@ class EventoQRAdmin(admin.ModelAdmin):
     search_fields = ("mascota__nombre", "propietario__nombre")
 
 
+#@admin.register(ReporteMascotaEncontrada)
+#class ReporteMascotaEncontradaAdmin(admin.ModelAdmin):
+#    list_display = ("id", "evento", "administrador", "fecha_reporte", "estado_reporte")
+#    list_filter = ("estado_reporte", "fecha_reporte")
+#    search_fields = ("evento__mascota__nombre", "mensaje")
+
 @admin.register(ReporteMascotaEncontrada)
 class ReporteMascotaEncontradaAdmin(admin.ModelAdmin):
-    list_display = ("id", "evento", "administrador", "fecha_reporte", "estado_reporte")
-    list_filter = ("estado_reporte", "fecha_reporte")
-    search_fields = ("evento__mascota__nombre", "mensaje")
+     list_display = ("id","mascota","nombre_reportante","telefono_reportante","estado_reporte",
+          "resultado_reporte", "fecha_reporte","fecha_cierre",)
+
+     list_filter = ("estado_reporte","resultado_reporte","fecha_reporte","fecha_cierre",)
+
+     search_fields = ("mascota__nombre","nombre_reportante","telefono_reportante",
+           "mensaje","referencia_ubicacion","observaciones_cierre",)

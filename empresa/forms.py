@@ -303,3 +303,25 @@ class ReporteMascotaEncontradaForm(forms.ModelForm):
 
         return telefono_limpio
 
+class ActualizarReporteMascotaForm(forms.ModelForm):
+    class Meta:
+        model = ReporteMascotaEncontrada
+        fields = [
+            "estado_reporte",
+            "resultado_reporte",
+            "observaciones_cierre",
+        ]
+        labels = {
+            "estado_reporte": "Estado del reporte",
+            "resultado_reporte": "Resultado del reporte",
+            "observaciones_cierre": "¿Qué pasó con el reporte?",
+        }
+        widgets = {
+            "observaciones_cierre": forms.Textarea(attrs={"rows": 4}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        for field in self.fields.values():
+            field.widget.attrs.update({"class": "form-control"})
