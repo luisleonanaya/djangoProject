@@ -54,10 +54,11 @@ def eliminar_propietario(request, propietario_id):
     messages.success(request, "Propietario eliminado correctamente.")
     return redirect("listar_propietarios")
 
+@login_required
 def registrar_mascota(request):
     if request.method == "POST":
-        propietario_form = PropietarioForm(request.POST)
-        mascota_form = MascotaForm(request.POST, request.FILES)
+        propietario_form = PropietarioForm(request.POST, prefix="propietario")
+        mascota_form = MascotaForm(request.POST, request.FILES, prefix="mascota")
 
         if propietario_form.is_valid() and mascota_form.is_valid():
             telefono = propietario_form.cleaned_data["telefono"]
@@ -73,7 +74,6 @@ def registrar_mascota(request):
                     email__iexact=email
                 ).first()
 
-            # Si el teléfono pertenece a un propietario y el correo a otro, hay conflicto.
             if (
                 propietario_por_telefono
                 and propietario_por_email
@@ -95,6 +95,12 @@ def registrar_mascota(request):
                     propietario.email = email
                     propietario.telefono = telefono
                     propietario.direccion = propietario_form.cleaned_data["direccion"]
+
+                    if "mostrar_contacto_publico" in propietario_form.cleaned_data:
+                        propietario.mostrar_contacto_publico = propietario_form.cleaned_data[
+                            "mostrar_contacto_publico"
+                        ]
+
                     propietario.save()
                 else:
                     propietario = propietario_form.save()
@@ -126,8 +132,8 @@ def registrar_mascota(request):
                 return redirect("detalles_mascota", mascota_id=mascota.id)
 
     else:
-        propietario_form = PropietarioForm()
-        mascota_form = MascotaForm()
+        propietario_form = PropietarioForm(prefix="propietario")
+        mascota_form = MascotaForm(prefix="mascota")
 
     return render(
         request,

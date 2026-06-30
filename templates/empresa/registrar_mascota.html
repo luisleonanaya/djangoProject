@@ -176,8 +176,9 @@
 {% block extra_js %}
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        const tipoSelect = document.getElementById("id_tipo");
-        const placaSelect = document.getElementById("id_placa_qr");
+
+        const tipoSelect = document.getElementById("id_mascota-tipo");
+        const placaSelect = document.getElementById("id_mascota-placa_qr");
 
         function limpiarPlacas(mensaje) {
             placaSelect.innerHTML = "";

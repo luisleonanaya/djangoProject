@@ -115,17 +115,30 @@ class MascotaForm(forms.ModelForm):
 
         tipo = None
 
+        # Cuando el formulario tiene prefix="mascota", el campo tipo llega como:
+        # mascota-tipo
+        # self.add_prefix("tipo") obtiene automáticamente el nombre correcto.
         if self.is_bound:
-            tipo = self.data.get("tipo")
+            tipo = self.data.get(self.add_prefix("tipo"))
         elif self.instance and self.instance.pk:
             tipo = self.instance.tipo
 
         if tipo:
-            self.fields["placa_qr"].queryset = PlacaQR.objects.filter(
+            queryset_placas = PlacaQR.objects.filter(
                 tipo_mascota=tipo,
                 estado="Disponible",
                 activo=True
             ).order_by("codigo")
+
+            # Si se usa este mismo formulario para edición y la mascota ya tenía placa,
+            # se incluye su placa actual para que no falle la validación.
+            if self.instance and self.instance.pk and self.instance.placa_qr:
+                queryset_placas = (
+                    queryset_placas | PlacaQR.objects.filter(id=self.instance.placa_qr.id)
+                ).distinct().order_by("codigo")
+
+            self.fields["placa_qr"].queryset = queryset_placas
+
         else:
             self.fields["placa_qr"].queryset = PlacaQR.objects.none()
 
@@ -136,10 +149,14 @@ class MascotaForm(forms.ModelForm):
         nombre = (self.cleaned_data.get("nombre") or "").strip()
 
         if len(nombre) < 2:
-            raise forms.ValidationError("El nombre de la mascota debe tener al menos 2 caracteres.")
+            raise forms.ValidationError(
+                "El nombre de la mascota debe tener al menos 2 caracteres."
+            )
 
         if len(nombre) > 100:
-            raise forms.ValidationError("El nombre de la mascota es demasiado largo.")
+            raise forms.ValidationError(
+                "El nombre de la mascota es demasiado largo."
+            )
 
         return nombre
 
@@ -147,7 +164,9 @@ class MascotaForm(forms.ModelForm):
         fecha = self.cleaned_data.get("fecha_nacimiento")
 
         if fecha and fecha > timezone.now().date():
-            raise forms.ValidationError("La fecha de nacimiento no puede ser futura.")
+            raise forms.ValidationError(
+                "La fecha de nacimiento no puede ser futura."
+            )
 
         return fecha
 
@@ -155,7 +174,9 @@ class MascotaForm(forms.ModelForm):
         color = (self.cleaned_data.get("color") or "").strip()
 
         if color and len(color) < 3:
-            raise forms.ValidationError("El color debe tener al menos 3 caracteres.")
+            raise forms.ValidationError(
+                "El color debe tener al menos 3 caracteres."
+            )
 
         return color
 
@@ -167,16 +188,21 @@ class MascotaForm(forms.ModelForm):
             nombre_archivo = foto.name.lower()
 
             if not any(nombre_archivo.endswith(ext) for ext in extensiones_permitidas):
-                raise forms.ValidationError("La foto debe ser JPG, JPEG, PNG o WEBP.")
+                raise forms.ValidationError(
+                    "La foto debe ser JPG, JPEG, PNG o WEBP."
+                )
 
             limite_mb = 3
             if foto.size > limite_mb * 1024 * 1024:
-                raise forms.ValidationError(f"La foto no debe pesar más de {limite_mb} MB.")
+                raise forms.ValidationError(
+                    f"La foto no debe pesar más de {limite_mb} MB."
+                )
 
         return foto
 
     def clean(self):
         cleaned_data = super().clean()
+
         tipo = cleaned_data.get("tipo")
         placa_qr = cleaned_data.get("placa_qr")
 
@@ -186,10 +212,20 @@ class MascotaForm(forms.ModelForm):
                     "La placa QR seleccionada no corresponde al tipo de mascota."
                 )
 
-            if placa_qr.estado != "Disponible" or not placa_qr.activo:
-                raise forms.ValidationError(
-                    "La placa QR seleccionada ya no está disponible."
-                )
+            # Si es registro nuevo, la placa debe estar disponible.
+            # Si es edición y es la misma placa actual de la mascota, se permite.
+            es_placa_actual = (
+                self.instance
+                and self.instance.pk
+                and self.instance.placa_qr
+                and self.instance.placa_qr.id == placa_qr.id
+            )
+
+            if not es_placa_actual:
+                if placa_qr.estado != "Disponible" or not placa_qr.activo:
+                    raise forms.ValidationError(
+                        "La placa QR seleccionada ya no está disponible."
+                    )
 
         return cleaned_data
 
